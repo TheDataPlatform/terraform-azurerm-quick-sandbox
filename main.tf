@@ -3,6 +3,12 @@ resource "azurerm_resource_group" "this" {
   location = var.resource_group_location
 }
 
+resource "azurerm_user_assigned_identity" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = var.user_assigned_identity_name
+  resource_group_name = azurerm_resource_group.this.name
+}
+
 resource "azurerm_storage_account" "this" {
   name                     = lower("storageaccount${random_string.random.result}")
   resource_group_name      = azurerm_resource_group.this.name
