@@ -21,16 +21,16 @@ locals {
 resource "azurerm_log_analytics_workspace" "this" {
   for_each            = var.create_function ? { "create" = true } : {}
   name                = local.log_analytics_name
-  resource_group_name = local.resource_group_name
-  location            = local.resource_group_location
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
   sku                 = "PerGB2018"
 }
 
 resource "azurerm_application_insights" "this" {
   for_each            = var.create_function ? { "create" = true } : {}
   name                = local.app_insights_name
-  resource_group_name = local.resource_group_name
-  location            = local.resource_group_location
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
   workspace_id        = azurerm_log_analytics_workspace.this[each.key].id
   application_type    = "web"
 }

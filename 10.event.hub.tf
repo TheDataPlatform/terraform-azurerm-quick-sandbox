@@ -32,8 +32,8 @@ variable "create_eventhub" {
 resource "azurerm_eventhub_namespace" "this" {
   for_each            = var.create_eventhub ? { "create" = true } : {}
   name                = local.eventhub_namespace_name
-  location            = local.resource_group_location
-  resource_group_name = local.resource_group_name
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
   sku                 = "Standard" # Kafka support and Event Capture enabled
   capacity            = 1          # 1 Throughput Unit (minimum)
 }

@@ -10,7 +10,7 @@ locals {
 }
 
 resource "azurerm_user_assigned_identity" "this" {
-  location            = local.resource_group_location
   name                = local.user_assigned_identity_name
-  resource_group_name = local.resource_group_name
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
 }

@@ -43,8 +43,8 @@ resource "azurerm_key_vault_secret" "sql_server_admin_name" {
 resource "azurerm_mssql_server" "this" {
   for_each                      = var.create_sql_server ? { "create" = true } : {}
   name                          = local.sql_server_name
-  resource_group_name           = local.resource_group_name
-  location                      = local.resource_group_location
+  resource_group_name           = azurerm_resource_group.this.name
+  location                      = azurerm_resource_group.this.location
   version                       = "12.0"
   
   administrator_login           = local.sql_server_admin_name

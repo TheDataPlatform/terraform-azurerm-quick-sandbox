@@ -22,8 +22,8 @@ variable "create_databricks" {
 resource "azurerm_databricks_workspace" "this" {
   for_each                      = var.create_databricks ? { "create" = true } : {}
   name                          = local.databricks_name
-  resource_group_name           = local.resource_group_name
-  location                      = local.resource_group_location
+  resource_group_name           = azurerm_resource_group.this.name
+  location                      = azurerm_resource_group.this.location
   sku                           = "premium"
   managed_resource_group_name   = "databricks-managed-rg-${random_string.this.result}"
 }

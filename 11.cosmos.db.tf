@@ -12,23 +12,23 @@ locals {
 variable "create_cosmosdb" {
   description = "Whether to create the cosmodb"
   type        = bool
-  default     = true
+  default     = false # cosmosdb is slow to build and destroy, defaulting to false
 }
 
 resource "azurerm_cosmosdb_account" "this" {
-    for_each            = var.create_cosmosdb ? { "create" = true } : {}
-    name                = local.azurerm_cosmosdb_account_name
-    location            = local.resource_group_location
-    resource_group_name = local.resource_group_name
-    offer_type          = "Standard"
-    kind                = "GlobalDocumentDB" # SQL API
+  for_each            = var.create_cosmosdb ? { "create" = true } : {}
+  name                = local.azurerm_cosmosdb_account_name
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB" # SQL API
 
-    free_tier_enabled   = true
-    multiple_write_locations_enabled = false
+  free_tier_enabled   = true
+  multiple_write_locations_enabled = false
 
-    consistency_policy {
-        consistency_level = "Session"
-    }
+  consistency_policy {
+      consistency_level = "Session"
+  }
 
   geo_location {
     location          = local.resource_group_location
@@ -40,21 +40,22 @@ resource "azurerm_cosmosdb_account" "this" {
 resource "azurerm_cosmosdb_sql_database" "this" {
   for_each            = var.create_cosmosdb ? { "create" = true } : {}
   name                = "cosmosdb"
-  resource_group_name = local.resource_group_name
+  resource_group_name = azurerm_resource_group.this.name
   account_name        = azurerm_cosmosdb_account.this[each.key].name
   throughput          = 400 # Minimum RU/s for provisioned throughput
 }
 
 # Cosmos DB SQL Container
 resource "azurerm_cosmosdb_sql_container" "container" {
-    for_each                = var.create_cosmosdb ? { "create" = true } : {}
-    name                    = "sqlcontainer"
-    database_name           = azurerm_cosmosdb_sql_database.this[each.key].name
-    resource_group_name     = local.resource_group_name
-    account_name            = azurerm_cosmosdb_account.this[each.key].name
-    partition_key_paths   = ["/definition/id"]
-    partition_key_version   = 2
-    throughput              = 400
+  for_each                = var.create_cosmosdb ? { "create" = true } : {}
+  name                    = "sqlcontainer"
+  database_name           = azurerm_cosmosdb_sql_database.this[each.key].name
+  resource_group_name     = azurerm_resource_group.this.name
+
+  account_name            = azurerm_cosmosdb_account.this[each.key].name
+  partition_key_paths   = ["/definition/id"]
+  partition_key_version   = 2
+  throughput              = 400
 }
 
 # Role Assignment for User-Assigned Managed Identity

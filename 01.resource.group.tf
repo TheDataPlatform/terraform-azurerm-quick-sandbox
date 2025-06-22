@@ -18,14 +18,7 @@ locals {
   resource_group_location         = var.resource_group_location != "" ? var.resource_group_location : local.default_resource_group_location
 }
 
-variable "create_resource_group" {
-  description = "Whether to create the resource group"
-  type        = bool
-  default     = true
-}
-
 resource "azurerm_resource_group" "this" {
-  for_each = var.create_resource_group ? { "create" = true } : {}
   name     = local.resource_group_name
   location = local.resource_group_location
 }

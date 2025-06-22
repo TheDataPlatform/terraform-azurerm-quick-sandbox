@@ -40,8 +40,8 @@ variable "create_function" {
 resource "azurerm_storage_account" "function" {
   for_each                  = var.create_function ? { "create" = true } : {}
   name                      = local.storage_account_function_name
-  resource_group_name       = local.resource_group_name
-  location                  = local.resource_group_location
+  resource_group_name       = azurerm_resource_group.this.name
+  location                  = azurerm_resource_group.this.location
   account_tier              = "Standard"
   account_replication_type  = "LRS"
   tags = {
@@ -67,8 +67,8 @@ resource "azurerm_key_vault_secret" "storage-connection-string" {
 resource "azurerm_service_plan" "this" {
   for_each                  = var.create_function ? { "create" = true } : {}
   name                      = local.azurerm_service_plan_name
-  resource_group_name       = local.resource_group_name
-  location                  = local.resource_group_location
+  resource_group_name       = azurerm_resource_group.this.name
+  location                  = azurerm_resource_group.this.location
   os_type                   = "Linux"
   sku_name                  = "Y1"
 }
@@ -76,8 +76,8 @@ resource "azurerm_service_plan" "this" {
 resource "azurerm_linux_function_app" "this" {
   for_each                        = var.create_function ? { "create" = true } : {}
   name                            = local.azurerm_linux_function_app_name
-  resource_group_name             = local.resource_group_name
-  location                        = local.resource_group_location
+  resource_group_name             = azurerm_resource_group.this.name
+  location                        = azurerm_resource_group.this.location
   service_plan_id                 = azurerm_service_plan.this[each.key].id
   storage_key_vault_secret_id     = azurerm_key_vault_secret.storage-connection-string[each.key].id # secret containing connection string  
   key_vault_reference_identity_id = azurerm_user_assigned_identity.this.id  # identity with access to keyvault

@@ -18,8 +18,8 @@ variable "create_storage_account" {
 resource "azurerm_storage_account" "this" {
   for_each = var.create_storage_account ? { "create" = true } : {}
   name                     = lower(local.storage_account_name)
-  resource_group_name      = local.resource_group_name
-  location                 = local.resource_group_location
+  resource_group_name      = azurerm_resource_group.this.name
+  location                 = azurerm_resource_group.this.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
   tags = {
